@@ -1,7 +1,6 @@
 # RL-Based Dynamic Slicing (SDN)
 
 Asymmetric actor-critic untuk slicing dinamis (URLLC / eMBB / BE) di Mininet + Open vSwitch + Ryu.
-Konteks lengkap, keputusan desain, dan aturan kerja ada di [context.md](context.md).
 
 ## 1. Siapkan VM (laptop Windows)
 

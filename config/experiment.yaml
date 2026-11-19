@@ -1,0 +1,44 @@
+seed: 1
+capacity_bps: 20000000        # port bottleneck agg1->core1 dan agg2->core2 (QoS OVS)
+core_link_bps: 30000000       # hanya untuk normalisasi utilisasi core1-core2 (tidak di-shape)
+
+ovsdb: tcp:127.0.0.1:6640     # dipakai Ryu (tanpa sudo) untuk mengubah rate queue
+of_port: 6653
+rest_url: http://127.0.0.1:8080
+
+queues: {be: 0, urllc: 1, embb: 2}     # OVS queue n == kelas HTB 1:(n+1)
+ports: {urllc: 5001, embb: 5002, be: 5003}
+
+# dpid eksplisit: default Mininet akan bentrok (core1 dan agg1 sama-sama dpid 1)
+switches: {core1: 1, core2: 2, agg1: 3, agg2: 4, acc1: 5, acc2: 6, acc3: 7, acc4: 8}
+
+# satu actor per port bottleneck; hosts = sumber trafik yang lewat port tsb
+agents:
+  agg1: {port: agg1-eth1, hosts: [h1, h2]}
+  agg2: {port: agg2-eth1, hosts: [h3, h4]}
+core_ports: [core1-eth2, core2-eth2]   # link core1-core2 (dua arah)
+
+# tiap sumber mengirim probe URLLC + beban URLLC + eMBB ke server ini
+# h2->srv2 dan h3->srv1 lintas sisi (lewat core1-core2): coupling antar agen
+flows: {h1: srv1, h2: srv2, h3: srv1, h4: srv2}
+be_flows: [[h1, srv1], [h4, srv2]]     # TCP iperf3 latar belakang (jatuh ke queue 0)
+
+step_s: 1.0
+episode_steps: 30
+run_s: 150
+
+traffic:
+  probe: {interval_ms: 10, size: 100}
+  # pola sinusoidal (periode dipadatkan dari "harian") + lonjakan Poisson
+  embb:       {min_mbps: 5,   max_mbps: 25, period_s: 60, spike_rate: 0.05, spike_mbps: 10, spike_s: 5, size: 1400}
+  # beban URLLC ikut di queue 1 supaya jatah URLLC benar-benar berpengaruh ke latency
+  urllc_load: {min_mbps: 0.5, max_mbps: 2,  period_s: 40, spike_rate: 0.05, spike_mbps: 5,  spike_s: 3, size: 200}
+
+reward: {w1: 1.0, w2: 2.0, w3: 1.0, urllc_p99_ms: 5.0}
+
+greedy:
+  urllc_backlog_high: 20     # paket
+  embb_backlog_high: 100     # paket
+  urllc_profile: 4           # 50/30/20
+  embb_profile: 3            # 20/70/10
+  default_profile: 1         # 30/50/20

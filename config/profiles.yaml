@@ -1,0 +1,14 @@
+# Profil split (% kapasitas bottleneck). Indeks list = aksi actor (0..4).
+profiles:
+  - {urllc: 20, embb: 60, be: 20}
+  - {urllc: 30, embb: 50, be: 20}
+  - {urllc: 40, embb: 40, be: 20}
+  - {urllc: 20, embb: 70, be: 10}
+  - {urllc: 50, embb: 30, be: 20}
+
+# Baseline statis. Interpretasi slide "50/30/20": eMBB 50 / URLLC 30 / BE 20.
+static_split: {urllc: 30, embb: 50, be: 20}
+
+# strict    : min-rate = max-rate = jatah (tanpa peminjaman bandwidth)
+# borrowing : min-rate = jatah, max-rate = kapasitas
+mode: strict

@@ -1,0 +1,2 @@
+# core.autocrlf=true di Windows: skrip shell tetap LF agar jalan di VM
+*.sh text eol=lf
