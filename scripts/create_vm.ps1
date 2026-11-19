@@ -18,8 +18,7 @@ function Invoke-VBox {
     if ($LASTEXITCODE -ne 0) { throw "VBoxManage $($args -join ' ') gagal" }
 }
 
-& $vbox showvminfo $Name *> $null
-if ($LASTEXITCODE -eq 0) { throw "VM '$Name' sudah ada. Hapus dulu atau pakai -Name lain." }
+if ((& $vbox list vms) -match "^`"$Name`" ") { throw "VM '$Name' sudah ada. Hapus dulu atau pakai -Name lain." }
 
 if (-not (Test-Path $Iso)) {
     Write-Host "Mengunduh ISO Ubuntu 22.04.5 (~2 GB) ke $Iso"
