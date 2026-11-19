@@ -10,3 +10,4 @@ checkpoints/
 !checkpoints/final/*.pt
 .vscode/
 .DS_Store
+context.md
