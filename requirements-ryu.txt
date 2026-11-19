@@ -1,0 +1,5 @@
+# Python 3.9. Install via scripts/setup_vm.sh (butuh setuptools==67.6.1 + --no-build-isolation).
+ryu==4.34
+eventlet==0.30.2     # >0.30.2 menghapus ALREADY_HANDLED yang dipakai ryu.app.wsgi
+dnspython==2.2.1     # eventlet 0.30.2 rusak dengan dnspython >= 2.3
+pyyaml
