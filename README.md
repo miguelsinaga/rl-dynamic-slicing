@@ -2,7 +2,53 @@
 
 Asymmetric actor-critic untuk slicing dinamis (URLLC / eMBB / BE) di Mininet + Open vSwitch + Ryu.
 
-## 1. Siapkan VM (laptop Windows)
+## 1. Siapkan mesin Linux
+
+Pilih salah satu: **1A Huawei Cloud ECS** (utama) atau **1B VM VirtualBox lokal**.
+Jangan pakai WSL2 (kernelnya tanpa modul OVS, QoS `linux-htb` tidak bekerja).
+
+### 1A. Huawei Cloud ECS
+
+Console → Elastic Cloud Server → **Buy ECS**:
+
+| Bagian | Pilihan |
+|---|---|
+| Region | AP-Jakarta |
+| Billing | Pay-per-use |
+| Flavor | General computing, **4 vCPUs \| 8 GiB** (nama flavor berakhiran `.xlarge.2`) |
+| Image | Public image → **Ubuntu 22.04 server 64bit** |
+| System disk | General Purpose SSD, 40 GB |
+| EIP | Auto assign, billed by traffic, 5 Mbit/s cukup (trafik eksperimen tetap di dalam VM) |
+| Security group | Inbound **hanya TCP 22 dari IP Anda** (`<ip-publik>/32`). Jangan buka 6640 / 6653 / 8080 |
+| Login | Key pair → buat baru, unduh `.pem` |
+
+Di Windows (PowerShell), simpan key lalu batasi izinnya (OpenSSH menolak key yang bisa dibaca user lain):
+
+```powershell
+Move-Item $env:USERPROFILE\Downloads\<nama-key>.pem $env:USERPROFILE\.ssh\huawei-ecs.pem
+icacls $env:USERPROFILE\.ssh\huawei-ecs.pem /inheritance:r /grant:r "${env:USERNAME}:R"
+```
+
+Tambahkan ke `~/.ssh/config`, lalu VS Code → Remote-SSH → `sdn-ecs`:
+
+```
+Host sdn-ecs
+    HostName <EIP>
+    User root
+    IdentityFile ~/.ssh/huawei-ecs.pem
+```
+
+Catatan:
+- Ryu REST (8080) dan OVSDB (6640) sudah diikat ke `127.0.0.1` oleh kode/perintah di repo ini.
+- Biaya: matikan (Stop) ECS saat tidak dipakai. Disk dan EIP tetap ditagih saat ECS mati;
+  hapus (Release) ECS + EIP setelah proyek selesai.
+- Satu ECS dipakai bersama tim: jalankan eksperimen bergantian (nama bridge/port Mininet sama, akan bentrok).
+- Repo private: clone di ECS butuh autentikasi GitHub (personal access token atau deploy key).
+
+Lanjut ke bagian 2. `setup_vm.sh` menjalankan `scripts/check_kernel.sh` lebih dulu dan berhenti
+bila modul `openvswitch` / `sch_htb` / `tcp_bbr` tidak ada di kernel image tersebut.
+
+### 1B. VM VirtualBox lokal
 
 Butuh VirtualBox 7. Skrip membuat VM Ubuntu 22.04 Server (4 vCPU, 6 GB RAM, disk dinamis 25 GB),
 mengunduh ISO + cek SHA256, dan meneruskan SSH ke `127.0.0.1:2222`.
@@ -21,12 +67,10 @@ Host sdn-vm
     User <user-vm>
 ```
 
-Jangan pakai WSL2 (kernelnya tanpa modul OVS, QoS `linux-htb` tidak bekerja).
-
-## 2. Setup di dalam VM
+## 2. Setup di dalam VM / ECS
 
 ```bash
-git clone <url-repo> rl-dynamic-slicing && cd rl-dynamic-slicing
+git clone https://github.com/miguelsinaga/rl-dynamic-slicing.git && cd rl-dynamic-slicing
 bash scripts/setup_vm.sh      # apt, sysctl (bbr, backlog), .venv-ryu (3.9), .venv-agent (3.10 + torch CPU)
 ```
 

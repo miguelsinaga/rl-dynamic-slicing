@@ -4,6 +4,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+echo "== 0. Verifikasi kernel"
+bash scripts/check_kernel.sh
+
 echo "== 1. Paket sistem"
 sudo apt-get update
 sudo apt-get install -y git build-essential python3-venv python3-pip software-properties-common \
