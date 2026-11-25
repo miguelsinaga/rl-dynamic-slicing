@@ -44,6 +44,7 @@ Terminal 2:
 sudo .venv-agent/bin/python -m experiments.smoke_test       # checklist 7.9 otomatis, PASS/FAIL per poin
 sudo .venv-agent/bin/python -m topology.topo                # topologi + Mininet CLI untuk eksplorasi manual
 sudo .venv-agent/bin/python -m experiments.run_all --methods static greedy --seeds 1 2 3 4 5
+sudo .venv-agent/bin/python -m agent.train --variant asym --seed 1   # lalu --variant sym (±50 menit/varian)
 sudo bash scripts/cleanup.sh                                # bila ada run yang terhenti paksa
 ```
 
@@ -79,5 +80,7 @@ experiments/run_all.py ── policy.act(obs, info) ──> agent/env.py ── 
 |---|---|
 | `topology/`, `controller/`, `traffic/`, `monitor/` | siap, belum diuji di VM |
 | `agent/env.py`, `baselines/`, `experiments/` | siap, belum diuji di VM |
-| `agent/ppo.py`, `train.py`, `run_policy.py`, `sim_env.py` | belum (tahap 4–5) |
+| `agent/ppo.py` | siap, lulus self-test env mainan (`python -m agent.ppo`) |
+| `agent/train.py` | siap, belum diuji di VM |
+| `agent/run_policy.py`, `sim_env.py` | belum (tahap 5 / opsional) |
 | `analysis/plots.py` | belum (tahap 7) |
